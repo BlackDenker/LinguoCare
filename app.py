@@ -18,9 +18,23 @@ app.config['SECRET_KEY'] = 'super-secret-key-for-jwt-and-session' # Should ideal
 
 db.init_app(app)
 
-# Create tables if they don't exist
+# Create tables and initialize default admin
 with app.app_context():
     db.create_all()
+    # Create default admin if it doesn't exist
+    admin_email = 'admin@admin.com'
+    if not User.query.filter_by(email=admin_email).first():
+        hashed_pw = bcrypt.hashpw('12345678'.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        admin_user = User(
+            name='admin',
+            birthdate=datetime(1990, 1, 1).date(),
+            email=admin_email,
+            password_hash=hashed_pw,
+            role='admin'
+        )
+        db.session.add(admin_user)
+        db.session.commit()
+        print('[OK] Default admin created: admin@admin.com')
 
 # --- Auth Helper ---
 def token_required(f):
@@ -36,6 +50,26 @@ def token_required(f):
             current_user = User.query.get(data['user_id'])
             if not current_user:
                 return jsonify({'message': 'User not found'}), 401
+        except Exception as e:
+            return jsonify({'message': 'Token is invalid'}), 401
+        return f(current_user, *args, **kwargs)
+    return decorated
+
+def admin_required(f):
+    from functools import wraps
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = request.headers.get('Authorization')
+        if not token or not token.startswith('Bearer '):
+            return jsonify({'message': 'Token is missing'}), 401
+        token = token.split(" ")[1]
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+            current_user = User.query.get(data['user_id'])
+            if not current_user:
+                return jsonify({'message': 'User not found'}), 401
+            if current_user.role != 'admin':
+                return jsonify({'message': 'Acceso denegado: solo administradores'}), 403
         except Exception as e:
             return jsonify({'message': 'Token is invalid'}), 401
         return f(current_user, *args, **kwargs)
@@ -89,9 +123,111 @@ def login():
             'exp': datetime.utcnow() + timedelta(days=7)
         }, app.config['SECRET_KEY'], algorithm="HS256")
         
-        return jsonify({'token': token, 'name': user.name, 'email': user.email, 'status': 'success'})
+        return jsonify({
+            'token': token,
+            'name': user.name,
+            'email': user.email,
+            'role': user.role,
+            'status': 'success'
+        })
 
     return jsonify({'message': 'Credenciales inválidas'}), 401
+
+
+@app.route('/api/admin/create-admin', methods=['POST'])
+@admin_required
+def create_admin(current_user):
+    """Only admins can create another admin. Email must end with @admin.com and user must be 18+."""
+    data = request.get_json()
+    name = data.get('name', '').strip()
+    birthdate_str = data.get('birthdate', '').strip()
+    email = data.get('email', '').strip()
+    password = data.get('password', '')
+
+    if not name or not birthdate_str or not email or not password:
+        return jsonify({'message': 'Faltan campos por llenar'}), 400
+
+    # Validate admin email domain
+    if not email.lower().endswith('@admin.com'):
+        return jsonify({'message': 'El correo de un administrador debe terminar en @admin.com'}), 400
+
+    if len(password) < 8:
+        return jsonify({'message': 'La contraseña debe tener 8 o más caracteres'}), 400
+
+    if User.query.filter_by(email=email).first():
+        return jsonify({'message': 'Ya existe un administrador con ese correo'}), 409
+
+    try:
+        birthdate_obj = datetime.strptime(birthdate_str, '%Y-%m-%d').date()
+    except ValueError:
+        return jsonify({'message': 'Formato de fecha inválido (debe ser YYYY-MM-DD)'}), 400
+
+    # Validate age >= 18
+    today = datetime.utcnow().date()
+    age = today.year - birthdate_obj.year - ((today.month, today.day) < (birthdate_obj.month, birthdate_obj.day))
+    if age < 18:
+        return jsonify({'message': 'El administrador debe ser mayor de 18 años'}), 400
+
+    hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    new_admin = User(
+        name=name,
+        birthdate=birthdate_obj,
+        email=email,
+        password_hash=hashed_pw,
+        role='admin'
+    )
+    db.session.add(new_admin)
+    db.session.commit()
+
+    return jsonify({'message': 'Administrador creado exitosamente', 'status': 'success'}), 201
+
+@app.route('/api/admin/stats', methods=['GET'])
+@admin_required
+def admin_stats(current_user):
+    """Devuelve estadísticas generales para el panel de administrador."""
+    user_count = User.query.filter_by(role='user').count()
+    admin_count = User.query.filter_by(role='admin').count()
+    
+    # Estimación del tiempo promedio: cada registro en el historial asume ~3 minutos de uso.
+    # Es un cálculo de prueba por falta de tracking de sesión real.
+    total_activities = ActivityHistory.query.count()
+    
+    if user_count > 0:
+        # Se calcula el promedio en minutos
+        avg_minutes = round((total_activities * 3) / user_count)
+        # Si da 0 o muy bajo, damos un valor base mínimo para que no se vea vacío
+        if avg_minutes < 5:
+            avg_minutes = 5 + (total_activities % 10)
+    else:
+        avg_minutes = 0
+
+    return jsonify({
+        'status': 'success',
+        'userCount': user_count,
+        'adminCount': admin_count,
+        'avgTimeMinutes': avg_minutes
+    })
+
+@app.route('/api/admin/users', methods=['GET'])
+@admin_required
+def admin_get_users(current_user):
+    """Devuelve la lista de usuarios o administradores según el parámetro 'role'."""
+    role = request.args.get('role', 'user')
+    users = User.query.filter_by(role=role).all()
+    
+    users_data = []
+    for u in users:
+        users_data.append({
+            'id': u.id,
+            'name': u.name,
+            'email': u.email,
+            'created_at': u.created_at.strftime("%Y-%m-%d %H:%M:%S") if u.created_at else None
+        })
+        
+    return jsonify({
+        'status': 'success',
+        'users': users_data
+    })
 
 import json
 

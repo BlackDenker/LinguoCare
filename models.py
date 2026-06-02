@@ -9,6 +9,7 @@ class User(db.Model):
     birthdate = db.Column(db.Date, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
+    role = db.Column(db.String(20), nullable=False, default='user')  # 'user' | 'admin'
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     history = db.relationship('ActivityHistory', backref='user', lazy=True)

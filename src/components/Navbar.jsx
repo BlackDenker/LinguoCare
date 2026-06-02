@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function Navbar({ view, setView, userName, handleLogout }) {
+export default function Navbar({ view, setView, userName, userRole, handleLogout }) {
   const [isNavbarHidden, setIsNavbarHidden] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -40,42 +40,53 @@ export default function Navbar({ view, setView, userName, handleLogout }) {
   return (
     <>
       <nav className={`navbar ${isNavbarHidden ? 'hidden' : ''}`}>
-        <div className="navbar-brand" onClick={() => navigate('inicio')}>
+        <div className="navbar-brand" onClick={() => navigate(userRole === 'admin' ? 'admin-panel' : 'inicio')}>
           <span>✨</span> LinguoCare
         </div>
 
         {/* Desktop links */}
         <div className="navbar-links navbar-desktop">
-          <button 
-            className={`navbar-btn ${view === 'inicio' ? 'active' : ''}`} 
-            onClick={() => navigate('inicio')}
-          >
-            INICIO
-          </button>
-          <button 
-            className={`navbar-btn ${view === 'textear' ? 'active' : ''}`} 
-            onClick={() => navigate('textear')}
-          >
-            TEXTEAR
-          </button>
-          <button 
-            className={`navbar-btn ${view === 'hablar' ? 'active' : ''}`} 
-            onClick={() => navigate('hablar')}
-          >
-            HABLAR
-          </button>
-          <button 
-            className={`navbar-btn ${view === 'caraacara' ? 'active' : ''}`} 
-            onClick={() => navigate('caraacara')}
-          >
-            CARA A CARA
-          </button>
-          {userName && (
+          {userRole !== 'admin' ? (
+            <>
+              <button 
+                className={`navbar-btn ${view === 'inicio' ? 'active' : ''}`} 
+                onClick={() => navigate('inicio')}
+              >
+                INICIO
+              </button>
+              <button 
+                className={`navbar-btn ${view === 'textear' ? 'active' : ''}`} 
+                onClick={() => navigate('textear')}
+              >
+                TEXTEAR
+              </button>
+              <button 
+                className={`navbar-btn ${view === 'hablar' ? 'active' : ''}`} 
+                onClick={() => navigate('hablar')}
+              >
+                HABLAR
+              </button>
+              <button 
+                className={`navbar-btn ${view === 'caraacara' ? 'active' : ''}`} 
+                onClick={() => navigate('caraacara')}
+              >
+                CARA A CARA
+              </button>
+              {userName && (
+                <button 
+                  className={`navbar-btn ${view === 'historial' ? 'active' : ''}`} 
+                  onClick={() => navigate('historial')}
+                >
+                  HISTORIAL
+                </button>
+              )}
+            </>
+          ) : (
             <button 
-              className={`navbar-btn ${view === 'historial' ? 'active' : ''}`} 
-              onClick={() => navigate('historial')}
+              className={`navbar-btn ${view === 'admin-panel' ? 'active' : ''}`} 
+              onClick={() => navigate('admin-panel')}
             >
-              HISTORIAL
+              PANEL ADMIN
             </button>
           )}
           {userName ? (
@@ -131,36 +142,47 @@ export default function Navbar({ view, setView, userName, handleLogout }) {
       <div className={`mobile-menu-overlay ${menuOpen ? 'open' : ''}`}>
         <button className="mobile-menu-close" onClick={() => setMenuOpen(false)}>✕</button>
         <nav className="mobile-menu-links">
-          <button 
-            className={`mobile-menu-btn ${view === 'inicio' ? 'active' : ''}`}
-            onClick={() => navigate('inicio')}
-          >
-            INICIO
-          </button>
-          <button 
-            className={`mobile-menu-btn ${view === 'textear' ? 'active' : ''}`}
-            onClick={() => navigate('textear')}
-          >
-            TEXTEAR
-          </button>
-          <button 
-            className={`mobile-menu-btn ${view === 'hablar' ? 'active' : ''}`}
-            onClick={() => navigate('hablar')}
-          >
-            HABLAR
-          </button>
-          <button 
-            className={`mobile-menu-btn ${view === 'caraacara' ? 'active' : ''}`}
-            onClick={() => navigate('caraacara')}
-          >
-            CARA A CARA
-          </button>
-          {userName && (
+          {userRole !== 'admin' ? (
+            <>
+              <button 
+                className={`mobile-menu-btn ${view === 'inicio' ? 'active' : ''}`}
+                onClick={() => navigate('inicio')}
+              >
+                INICIO
+              </button>
+              <button 
+                className={`mobile-menu-btn ${view === 'textear' ? 'active' : ''}`}
+                onClick={() => navigate('textear')}
+              >
+                TEXTEAR
+              </button>
+              <button 
+                className={`mobile-menu-btn ${view === 'hablar' ? 'active' : ''}`}
+                onClick={() => navigate('hablar')}
+              >
+                HABLAR
+              </button>
+              <button 
+                className={`mobile-menu-btn ${view === 'caraacara' ? 'active' : ''}`}
+                onClick={() => navigate('caraacara')}
+              >
+                CARA A CARA
+              </button>
+              {userName && (
+                <button 
+                  className={`mobile-menu-btn ${view === 'historial' ? 'active' : ''}`}
+                  onClick={() => navigate('historial')}
+                >
+                  HISTORIAL
+                </button>
+              )}
+            </>
+          ) : (
             <button 
-              className={`mobile-menu-btn ${view === 'historial' ? 'active' : ''}`}
-              onClick={() => navigate('historial')}
+              className={`mobile-menu-btn ${view === 'admin-panel' ? 'active' : ''}`}
+              onClick={() => navigate('admin-panel')}
             >
-              HISTORIAL
+              PANEL ADMIN
             </button>
           )}
           {userName ? (

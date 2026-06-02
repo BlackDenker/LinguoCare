@@ -50,8 +50,12 @@ export default function Login({ setView, handleMouseMove, handleLogin }) {
       const data = await response.json();
 
       if (response.ok) {
-        handleLogin(data.token, data.email);
-        setView('inicio');
+        handleLogin(data.token, data.email, data.role);
+        if (data.role === 'admin') {
+          setView('admin-panel');
+        } else {
+          setView('inicio');
+        }
       } else {
         setError(data.message || 'Error al iniciar sesión');
         setErrorField('general');
@@ -122,6 +126,9 @@ export default function Login({ setView, handleMouseMove, handleLogin }) {
 
         <div className="login-footer">
           <p>¿No tienes una cuenta? <span className="register-link" onClick={() => setView('register')}>Regístrate aquí</span></p>
+          <span className="admin-portal-link" onClick={() => setView('admin-login')}>
+            🛡️ Portal Administrativo
+          </span>
         </div>
       </main>
     </div>
