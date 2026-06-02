@@ -196,6 +196,29 @@ export default function Speak({ setView, handleMouseMove }) {
       const data = await response.json();
       if (data.status === 'success') {
         setEvaluation(data.evaluation);
+        
+        // Background save to history
+        const token = localStorage.getItem('token');
+        if (token) {
+          try {
+            const dataToSave = {
+              text: selectedSentence,
+              accuracy: accuracy,
+              evaluation: data.evaluation,
+              explanations: {}
+            };
+            fetch('/api/history', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({ module: 'hablar', data: JSON.stringify(dataToSave) })
+            }).catch(e => console.error(e));
+          } catch (e) {
+             console.error("Failed to start history save:", e);
+          }
+        }
       } else {
         alert(data.message || 'Error evaluando el audio.');
       }
@@ -228,6 +251,24 @@ export default function Speak({ setView, handleMouseMove }) {
 
       if (result.ok) {
         setDetails(result.data.details);
+        
+        // Background update to history to save the requested explanation
+        const token = localStorage.getItem('token');
+        if (token && evaluation) {
+           const dataToSave = {
+             text: selectedSentence,
+             accuracy: accuracy,
+             evaluation: evaluation,
+             explanations: {
+               [wordData.word]: result.data.details
+             }
+           };
+           fetch('/api/history', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+              body: JSON.stringify({ module: 'hablar', data: JSON.stringify(dataToSave) })
+           }).catch(e => console.error(e));
+        }
       } else if (result.errorType === 'quota_exhausted') {
         setGeneralError('quota_exhausted');
       } else if (result.errorType === 'rate_limit_exceeded') {
@@ -319,13 +360,13 @@ export default function Speak({ setView, handleMouseMove }) {
       {step === 2 && (
         <div className="sentences-selection" style={{ width: '100%' }}>
           <button className="btn btn-secondary" onClick={() => setStep(1)} style={{ marginBottom: '1rem' }}>← Cambiar tema</button>
-          <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>Selecciona una frase para pronunciar:</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem', textAlign: 'center' }}>Selecciona una frase para pronunciar:</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
             {sentences.map((sent, idx) => (
               <div 
                 key={idx} 
                 className="card" 
-                style={{ padding: '1rem', cursor: 'pointer', border: selectedSentence === sent ? '2px solid var(--accent-light)' : '1px solid rgba(255,255,255,0.1)' }}
+                style={{ padding: '1.2rem', cursor: 'pointer', border: selectedSentence === sent ? '2px solid var(--accent-light)' : '1px solid rgba(255,255,255,0.1)', width: '100%', maxWidth: '700px' }}
                 onClick={() => {
                   setSelectedSentence(sent);
                   setEvaluation(null);
@@ -334,7 +375,7 @@ export default function Speak({ setView, handleMouseMove }) {
                   setStep(3);
                 }}
               >
-                <p style={{ fontSize: '1.1rem', margin: 0 }}>{sent}</p>
+                <p style={{ fontSize: '1.1rem', margin: 0, textAlign: 'center' }}>{sent}</p>
               </div>
             ))}
           </div>
