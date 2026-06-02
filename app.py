@@ -6,7 +6,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from config import Config
 from services.gemini_service import check_text_grammar, generate_error_explanation
-from models import db, User, TextHistory
+from models import db, User, ActivityHistory
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for React frontend cross-origin requests
@@ -93,20 +93,103 @@ def login():
 
     return jsonify({'message': 'Credenciales inválidas'}), 401
 
+import json
+
 @app.route('/api/history', methods=['POST'])
 @token_required
 def save_history(current_user):
-    data = request.get_json()
-    text = data.get('text', '').strip()
+    payload = request.get_json() or {}
+    module = payload.get('module', '').strip()
+    data_str = payload.get('data', '').strip()
 
-    if not text:
-        return jsonify({'message': 'No text provided'}), 400
+    if not module or not data_str:
+        return jsonify({'message': 'Faltan campos module o data'}), 400
 
-    new_history = TextHistory(user_id=current_user.id, text=text)
+    # Parse incoming JSON to extract the text
+    try:
+        new_data = json.loads(data_str)
+        new_text = new_data.get('text')
+    except Exception:
+        new_text = None
+
+    if new_text is not None:
+        # Check if we already have a record for this exact text in this module
+        existing_records = ActivityHistory.query.filter_by(user_id=current_user.id, module=module).order_by(ActivityHistory.created_at.desc()).all()
+        for record in existing_records:
+            try:
+                record_data = json.loads(record.data)
+                if record_data.get('text') == new_text:
+                    # Exact text match found! Merge explanations so we don't lose them
+                    old_explanations = record_data.get('explanations', {})
+                    new_explanations = new_data.get('explanations', {})
+                    
+                    merged_explanations = old_explanations.copy()
+                    merged_explanations.update(new_explanations)
+                    
+                    new_data['explanations'] = merged_explanations
+                    record.data = json.dumps(new_data)
+                    db.session.commit()
+                    
+                    return jsonify({'message': 'History updated (merged)', 'status': 'success', 'id': record.id}), 200
+            except Exception:
+                continue
+
+    # If no match found, create a new record
+    new_history = ActivityHistory(user_id=current_user.id, module=module, data=data_str)
     db.session.add(new_history)
     db.session.commit()
 
-    return jsonify({'message': 'History saved', 'status': 'success'}), 201
+    return jsonify({'message': 'History saved', 'status': 'success', 'id': new_history.id}), 201
+
+@app.route('/api/history', methods=['GET'])
+@token_required
+def get_history(current_user):
+    module = request.args.get('module', None)
+    query = ActivityHistory.query.filter_by(user_id=current_user.id)
+    
+    if module:
+        query = query.filter_by(module=module)
+        
+    records = query.order_by(ActivityHistory.created_at.desc()).all()
+    
+    result = []
+    for r in records:
+        result.append({
+            'id': r.id,
+            'module': r.module,
+            'data': r.data,
+            'created_at': r.created_at.isoformat()
+        })
+        
+    return jsonify({'status': 'success', 'history': result})
+
+@app.route('/api/history/<int:history_id>', methods=['PUT'])
+@token_required
+def update_history(current_user, history_id):
+    record = ActivityHistory.query.filter_by(id=history_id, user_id=current_user.id).first()
+    if not record:
+        return jsonify({'message': 'Registro no encontrado'}), 404
+        
+    payload = request.get_json() or {}
+    data_str = payload.get('data', '').strip()
+    if data_str:
+        record.data = data_str
+        db.session.commit()
+        
+    return jsonify({'message': 'History updated', 'status': 'success'})
+
+@app.route('/api/history/<int:history_id>', methods=['DELETE'])
+@token_required
+def delete_history(current_user, history_id):
+    record = ActivityHistory.query.filter_by(id=history_id, user_id=current_user.id).first()
+    
+    if not record:
+        return jsonify({'message': 'Registro no encontrado o no tienes permiso'}), 404
+        
+    db.session.delete(record)
+    db.session.commit()
+    
+    return jsonify({'message': 'Registro eliminado exitosamente', 'status': 'success'})
 
 @app.route('/api/check', methods=['POST'])
 def check_text():

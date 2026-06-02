@@ -11,6 +11,7 @@ export function useGrammar() {
   const [results, setResults] = useState(null);
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [detailCards, setDetailCards] = useState(new Map()); // matchIdx -> { explanation, minimized }
+  const [historyId, setHistoryId] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState(null);      // null | 'quota_exhausted' | string
   const [retryWaitMessage, setRetryWaitMessage] = useState(null);
@@ -107,6 +108,20 @@ export function useGrammar() {
         setDetailCards(prev => {
           const next = new Map(prev);
           next.set(matchIdx, { explanation: result.data.explanation, minimized: false });
+          
+          // Background update to history
+          const token = localStorage.getItem('token');
+          if (token && historyId) {
+             const exps = {};
+             next.forEach((val, key) => { exps[key] = val.explanation; });
+             const dataToSave = { text, results, explanations: exps };
+             fetch(`${API_BASE}/api/history/${historyId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ data: JSON.stringify(dataToSave) })
+             }).catch(e => console.error(e));
+          }
+          
           return next;
         });
       } else if (result.errorType === 'quota_exhausted') {
@@ -161,14 +176,21 @@ export function useGrammar() {
         const token = localStorage.getItem('token');
         if (token) {
           try {
-            await fetch(`${API_BASE}/api/history`, {
+            const dataToSave = {
+              text: textToCheck,
+              results: result.data,
+              explanations: {}
+            };
+            const histRes = await fetch(`${API_BASE}/api/history`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
               },
-              body: JSON.stringify({ text: textToCheck })
+              body: JSON.stringify({ module: 'textear', data: JSON.stringify(dataToSave) })
             });
+            const histData = await histRes.json();
+            if (histData.id) setHistoryId(histData.id);
           } catch (histErr) {
             console.error("Failed to save history:", histErr);
           }

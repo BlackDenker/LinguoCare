@@ -70,6 +70,14 @@ export default function Navbar({ view, setView, userName, handleLogout }) {
           >
             CARA A CARA
           </button>
+          {userName && (
+            <button 
+              className={`navbar-btn ${view === 'historial' ? 'active' : ''}`} 
+              onClick={() => navigate('historial')}
+            >
+              HISTORIAL
+            </button>
+          )}
           {userName ? (
             <div className="navbar-user-menu">
               <span className="navbar-user-email">{userName}</span>
@@ -147,6 +155,14 @@ export default function Navbar({ view, setView, userName, handleLogout }) {
           >
             CARA A CARA
           </button>
+          {userName && (
+            <button 
+              className={`mobile-menu-btn ${view === 'historial' ? 'active' : ''}`}
+              onClick={() => navigate('historial')}
+            >
+              HISTORIAL
+            </button>
+          )}
           {userName ? (
             <button 
               className="mobile-menu-btn"

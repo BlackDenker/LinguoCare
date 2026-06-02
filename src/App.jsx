@@ -4,6 +4,7 @@ import Inicio from './components/Inicio';
 import Textear from './components/Textear';
 import Speak from './components/Speak';
 import CaraACara from './components/CaraACara';
+import Historial from './components/Historial';
 import Login from './components/Login';
 import Register from './components/Register';
 import { useGrammar } from './hooks/useGrammar';
@@ -96,10 +97,11 @@ function App() {
       />
 
       <div className="view-container" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-        {view === 'inicio' && <Inicio setView={setView} handleMouseMove={handleMouseMove} />}
+        {view === 'inicio' && <Inicio setView={setView} handleMouseMove={handleMouseMove} userName={userName} />}
         {view === 'textear' && <Textear grammar={grammar} handleMouseMove={handleMouseMove} />}
         {view === 'hablar' && <Speak setView={setView} handleMouseMove={handleMouseMove} />}
         {view === 'caraacara' && <CaraACara setView={setView} handleMouseMove={handleMouseMove} />}
+        {view === 'historial' && <Historial handleMouseMove={handleMouseMove} />}
         {view === 'login' && <Login setView={setView} handleMouseMove={handleMouseMove} handleLogin={handleLogin} />}
         {view === 'register' && <Register setView={setView} handleMouseMove={handleMouseMove} />}
       </div>

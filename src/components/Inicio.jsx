@@ -1,27 +1,29 @@
 import React from 'react';
 
-export default function Inicio({ setView, handleMouseMove }) {
+export default function Inicio({ setView, handleMouseMove, userName }) {
   return (
     <div className="inicio-layout">
       
-      {/* Login Promo Card */}
-      <div className="card login-cta-card" onMouseMove={handleMouseMove}>
-        <div className="login-cta-content">
-          <div className="login-cta-icon-wrapper">
-            <span className="login-cta-icon">🔐</span>
+      {/* Login Promo Card - Only show if not logged in */}
+      {!userName && (
+        <div className="card login-cta-card" onMouseMove={handleMouseMove}>
+          <div className="login-cta-content">
+            <div className="login-cta-icon-wrapper">
+              <span className="login-cta-icon">🔐</span>
+            </div>
+            <div className="login-cta-text">
+              <h3>Guarda tu progreso</h3>
+              <p>Inicia sesión gratis para llevar un historial de tus textos y ver cómo mejoras con el tiempo.</p>
+            </div>
+            <button 
+              className="btn btn-primary login-cta-btn"
+              onClick={() => setView('login')}
+            >
+              INICIAR SESION
+            </button>
           </div>
-          <div className="login-cta-text">
-            <h3>Guarda tu progreso</h3>
-            <p>Inicia sesión gratis para llevar un historial de tus textos y ver cómo mejoras con el tiempo.</p>
-          </div>
-          <button 
-            className="btn btn-primary login-cta-btn"
-            onClick={() => setView('login')}
-          >
-            INICIAR SESION
-          </button>
         </div>
-      </div>
+      )}
 
       {/* Main Feature Container */}
       <main className="card" onMouseMove={handleMouseMove}>
