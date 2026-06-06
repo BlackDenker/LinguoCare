@@ -436,12 +436,29 @@ export default function Speak({ setView, handleMouseMove }) {
                       cursor: wordData.correct ? 'default' : 'pointer',
                       padding: '0.2rem 0.4rem',
                       background: wordData.correct ? 'transparent' : 'rgba(255, 71, 87, 0.1)',
-                      borderRadius: '4px'
+                      borderRadius: '4px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px'
                     }}
                     onClick={() => getDetails(wordData)}
                     title={wordData.correct ? 'Correcto' : 'Clic para más detalles'}
                   >
                     {wordData.word}
+                    {!wordData.correct && (
+                      <span
+                        title="Escuchar pronunciación"
+                        style={{ cursor: 'pointer', fontSize: '1.1rem' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const u = new SpeechSynthesisUtterance(wordData.word);
+                          u.lang = 'en-US';
+                          window.speechSynthesis.speak(u);
+                        }}
+                      >
+                        🔊
+                      </span>
+                    )}
                   </span>
                 ))}
               </div>

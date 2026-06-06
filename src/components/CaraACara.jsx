@@ -851,6 +851,20 @@ export default function CaraACara({ setView, handleMouseMove }) {
                     <span className="cac-word-icon">{wordData.correct ? '✓' : '✗'}</span>
                     {wordData.word}
                     {!wordData.correct && (
+                      <span
+                        title="Escuchar pronunciación"
+                        style={{ cursor: 'pointer', fontSize: '1.1rem', marginLeft: '0.3rem' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const u = new SpeechSynthesisUtterance(wordData.word);
+                          u.lang = 'en-US';
+                          window.speechSynthesis.speak(u);
+                        }}
+                      >
+                        🔊
+                      </span>
+                    )}
+                    {!wordData.correct && (
                       <div className="cac-word-tooltip">
                         <div className="cac-tooltip-row">
                           <span className="cac-tooltip-label">Esperado:</span>
@@ -886,6 +900,30 @@ export default function CaraACara({ setView, handleMouseMove }) {
                   }}>
                     <h4 style={{ margin: 0, fontSize: '1.1rem', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
                       Detalle para: <span className="cac-details-word" style={{ color: 'var(--accent)', fontWeight: 'bold' }}>"{selectedWord.word}"</span>
+                      <button
+                        title="Escuchar pronunciación"
+                        style={{
+                          background: 'rgba(255, 255, 255, 0.1)',
+                          border: 'none',
+                          borderRadius: '50%',
+                          width: '32px',
+                          height: '32px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          fontSize: '1.1rem',
+                          color: '#fff'
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const u = new SpeechSynthesisUtterance(selectedWord.word);
+                          u.lang = 'en-US';
+                          window.speechSynthesis.speak(u);
+                        }}
+                      >
+                        🔊
+                      </button>
                       <span className={`cac-details-badge ${selectedWord.correct ? 'correct' : 'wrong'}`} style={{
                         fontSize: '0.75rem',
                         padding: '0.2rem 0.5rem',
