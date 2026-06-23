@@ -1,89 +1,121 @@
-# LinguoCare - Corrector Lingüístico Inteligente
+# [Título del Proyecto]
 
-Una aplicación web interactiva construida con **React (Vite)** + **Flask (Python)** y un diseño moderno en **HTML5, CSS3 (Glassmorphic) y JavaScript**.
+> **Nota:** (Reemplazar con el título elegido de los 3 candidatos propuestos en la Fase 1)
 
-## 🚀 Cómo ejecutar el proyecto
-
-### Requisitos previos
-- **Python** con las dependencias: `flask`, `flask-cors`, `language-tool-python`
-- **Node.js** (v18+) con npm
-- **Java** (requerido por LanguageTool)
-
-### Instalación de dependencias (solo la primera vez)
-
-```bash
-# Dependencias de Node.js (frontend)
-npm install
-```
-
-**Para el backend (Python)**, estás utilizando un entorno virtual de Conda llamado `linguocare`. Para activarlo e instalar las dependencias, sigue estos pasos:
-
-```bash
-# 1. Activar el entorno de Conda
-conda activate linguocare
-
-# 2. Una vez activado (verás (linguocare) en la terminal), instala las dependencias si aún no lo has hecho:
-pip install flask flask-cors language-tool-python google-generativeai python-dotenv
-```
-### ▶️ Ejecutar todo con UN solo comando
-
-```bash
-npm start
-```
-
-Esto levanta **backend** (Flask en `http://localhost:5000`) y **frontend** (Vite en `http://localhost:5173`) en paralelo, en la misma terminal con logs identificados por colores.
-
-### Opciones alternativas
-
-| Comando | Qué hace |
-|---------|----------|
-| `npm start` | ✅ Levanta backend + frontend juntos |
-| `npm run dev` | Solo frontend (Vite) |
-| `npm run backend` | Solo backend (Flask) |
-| `run.bat` | Script Windows CMD (llama a `npm start`) |
-| `.\run.ps1` | Script PowerShell (llama a `npm start`) |
+## Información del Proyecto
+- **Curso:** Automatización y Control de Procesos
+- **Programa:** Ingeniería de Sistemas y Computación
+- **Duración:** 2 meses (8 semanas)
+- **Modalidad:** Trabajo en parejas
+- **Producto final:** Borrador artículo científico + Prototipo SW/HW + Sustentación oral (EAiFi)
 
 ---
 
-## 🛠️ Diagnóstico y Solución de Problemas
+## 1. Identificación del Problema y Justificación
+- **Problema:** [Párrafo describiendo el problema técnico a resolver]
+- **Justificación:** [Párrafo de justificación del proyecto]
+- **Títulos Candidatos:**
+  1. [Título 1]
+  2. [Título 2]
+  3. [Título 3]
 
-### Matar todos los servidores activos
+## 2. Introducción
+*(Redactar 3 párrafos al final del proyecto)*
+1. **Concepto general:** [Descripción del contexto]
+2. **Motivación:** [Conceptos encontrados en el trabajo para motivar al lector]
+3. **Cierre con Objetivo:** [Conclusión de la introducción con el objetivo y la importancia de implementar/identificar el sistema]
 
-Ejecuta este comando para cerrar Flask y Vite de una sola vez:
+## 3. Objetivos
+### Objetivo General
+[Definir el objetivo general del proyecto articulando el problema, metodología y prototipo]
 
-**PowerShell:**
-```powershell
-Stop-Process -Name python, node -Force -ErrorAction SilentlyContinue
+### Objetivos Específicos
+1. [Objetivo Específico 1]
+2. [Objetivo Específico 2]
+3. [Objetivo Específico 3]
+4. [Objetivo Específico 4]
+
+## 4. Marco Teórico
+
+### 4.1 Definiciones (40)
+[Definiciones básicas del producto a desarrollar, historia, proceso general]
+
+### 4.2 Descripción de la Planta
+[Describir la planta y su entorno]
+
+### 4.3 Especificar el proceso a automatizar
+- **Materias Primas (agronet):** [Describir una a una las materias primas macro y micro requeridas]
+- **Capacidad de la Planta:** [Capacidad de producción anual, cálculos de producción por hora, cantidad de operarios, turnos y % de pérdida de producto o fallos]
+
+### 4.4 Diagrama de Proceso
+*(Ejemplo base, modificar según el proceso específico a automatizar)*
+```mermaid
+graph TD
+    A[Recepción de materia prima] --> B[Proceso 1 - ej: Molienda / Filtración]
+    B --> C[Proceso 2 - ej: Mezclado / Fermentación]
+    C --> D[Proceso 3 - ej: Empaquetado]
+    D --> E((Producto Terminado))
 ```
 
-**CMD:**
-```cmd
-taskkill /F /IM python.exe /IM node.exe
-```
+### 4.5 Descripción del Proceso (Variables a Controlar)
+[Descripción detallada de cada subproceso del diagrama, identificando claramente las variables específicas a controlar (Ej: Temperatura, Tiempo, pH, Viscosidad) para la posterior búsqueda de sensores y actuadores.]
 
-Esto termina todos los procesos `python` (Flask) y `node` (Vite) activos en el sistema.
+### 4.6 Maquinaria Requerida
+| Nombre | Link al PDF (Datasheet) | Imagen | Marca | Fabricante | Qué hace | Cómo lo hace | Por qué se hace | Detalles Técnicos |
+|---|---|---|---|---|---|---|---|---|
+| [Nombre] | [Link] | **[PANTALLAZO: Fotografía o esquema de la máquina]** | [Marca] | [Fabricante] | [Descripción] | [Funcionamiento] | [Razón] | [Detalles] |
 
-### ⚠️ Error: "Error de conexión con el servidor"
+### 4.7 Instrumentación
+#### a) Sensores
+| Nombre | Link al PDF (Datasheet) | Imagen | Característica 1 | Característica 2 | Característica 3 |
+|---|---|---|---|---|---|
+| [Nombre Sensor] | [Link] | **[PANTALLAZO: Fotografía del sensor (ej. sacada del datasheet)]** | [Rango/Medida] | [Resolución/Error] | [Dimensiones/Voltaje] |
 
-Si al registrar o iniciar sesión aparece ese mensaje, puede deberse a que la base de datos SQLite tiene un esquema desactualizado.
+#### b) Controladores
+[Especificar el Controlador/PLC elegido]
 
-**Solución:** Detener el servidor, eliminar la BD y reiniciar:
-```bash
-# 1. Detener npm start (Ctrl+C en la terminal)
+#### c) Actuadores
+[Especificar actuadores seleccionados: válvulas, motores, resistencias, etc.]
 
-# 2. Eliminar la base de datos vieja
-Remove-Item instance\database.db -Force   # PowerShell
-# o en CMD:
-del instance\database.db
+### 4.8 Plano de Planta
+**[PANTALLAZO: Captura del plano de planta en 2D (ej. AutoCAD) con su respectiva nomenclatura y distribución de equipos]**
 
-# 3. Reiniciar (Flask la recreará automáticamente)
-npm start
-```
+### 4.9 Actualidad de Automatización para el Alimento
+[Estado del arte y tecnologías actuales usadas en la industria para este producto]
+
+### 4.10 PESTLE
+[Análisis Político, Económico, Sociocultural, Tecnológico, Legal, Ecológico]
 
 ---
 
-## 🎨 Características de Diseño Premium
-- **Diseño Glassmorphic**: Interfaz elegante con desenfoque de fondo y bordes translúcidos.
-- **Efecto de Seguimiento de Luz**: La tarjeta reacciona al movimiento del puntero del mouse para un efecto tridimensional.
-- **Micro-animaciones**: Transiciones suaves y elementos flotantes animados en el fondo.
-- **Interactividad Dinámica**: Sistema de respuestas interactivas con confeti digital usando `canvas-confetti`.
+## 5. Metodología Experimental y Desarrollo
+
+### 5.1 Plan Metodológico
+[Describir paso a paso la metodología para llevar a cabo el proyecto]
+
+### 5.2 Recursos Requeridos
+- **Hardware (HW):** [Componentes electrónicos, tarjetas, sensores, etc.]
+- **Software (SW):** [Entornos de desarrollo, simuladores, lenguajes de programación]
+
+### 5.3 Diseño del Prototipo y Protocolo Experimental
+- **Diagrama del Prototipo:** 
+  **[PANTALLAZO: Esquema lógico, eléctrico o de arquitectura de software/hardware del prototipo]**
+- **Lista de Materiales:** [Inventario de elementos para la construcción]
+- **Protocolo de Pruebas:** [Guía de cómo se ejecutarán las validaciones y pruebas sobre el prototipo]
+
+### 5.4 Ejecución de Pruebas y Recolección de Datos
+[Registros experimentales, tablas de toma de datos y resultados del Sprint 1 y pruebas finales]
+
+---
+
+## 6. Resultados y Análisis
+*(Sección base para el borrador del artículo científico)*
+- **Métodos y Resultados:** [Análisis de los datos recolectados durante las pruebas]
+
+## 7. Integración Final y Conclusiones
+- **Video Demo:** **[PANTALLAZO O ENLACE: Miniatura o enlace al video demostrativo del prototipo funcionando]**
+- **Conclusiones:** [Redactadas en base a los objetivos y resultados]
+- **Agradecimientos:** [Reconocimientos]
+
+## 8. Referencias
+[Listado de bibliografía (recordar usar sangría francesa según APA 7, aunque en este formato Markdown se puede listar con viñetas o numeración simple)]
